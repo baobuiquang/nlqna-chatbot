@@ -50,6 +50,8 @@ Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/
 
 ## Example and Rough Explanation
 
+Sample data: [sample.xlsx](https://github.com/baobuiquang/nlqna-chatbot/blob/main/data/sample.xlsx)
+
 ### Step 1. Input:
 * `question` = "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?"
 * `data` = `data/sample.xlsx`
@@ -109,10 +111,71 @@ Output the answer (cell value): "165"
 
 https://github.com/baobuiquang/nlqna-chatbot/assets/60503568/57621579-6a58-4638-9644-b4e482ac975e
 
-## Installation
+## Instructions (Recommended workflow)
 
-📝 TODO 
+### Installation
 
-## Deployment
+Prerequisites:
+* [Python 3](https://www.python.org/downloads/)
+* [Git](https://git-scm.com/downloads)
 
-📝 TODO 
+Clone [this repository](https://github.com/baobuiquang/nlqna-chatbot):
+```
+git clone https://github.com/baobuiquang/nlqna-chatbot.git
+cd nlqna-chatbot
+```
+
+Create virtual environment:
+```
+python -m venv venv
+```
+
+Activate virtual environment:
+```
+venv\Scripts\activate
+```
+
+Upgrade `pip` command:
+```
+python.exe -m pip install --upgrade pip
+```
+
+Install [required packages/libraries](https://github.com/baobuiquang/nlqna-chatbot/blob/main/requirements.txt):
+```
+pip install -r requirements.txt
+```
+
+Deactivate virtual environment:
+```
+deactivate
+```
+
+### Start chatbot
+
+Activate virtual environment:
+```
+venv\Scripts\activate
+```
+
+Run chatbot app:
+```
+python app.py
+```
+
+Wait until the terminal print something like this:
+```
+...\nlqna-chatbot> python app.py
+Running on local URL:  http://127.0.0.1:7860
+To create a public link, set `share=True` in `launch()`.
+```
+
+Now chatbot can be accessed from [http://127.0.0.1:7860](http://127.0.0.1:7860).
+
+### Stop chatbot
+
+Press `Ctrl + C` in the terminal to close the chatbot server.
+
+Deactivate virtual environment:
+```
+deactivate
+```
