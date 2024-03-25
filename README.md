@@ -23,6 +23,12 @@ Expected output:
 * Preprocessed Dataframe Data / Question (`String`)
 * ↳ Embedding (`PyTorch Tensor`)
 
+#### Model:
+* Stable Model: [HF/XLM-ROBERTA-ME5-BASE](https://huggingface.co/baobuiquang/XLM-ROBERTA-ME5-BASE) (License: [MIT License](https://choosealicense.com/licenses/mit/))
+  * Forked from: [HF/multilingual-e5-base](https://huggingface.co/intfloat/multilingual-e5-base) (License: [MIT License](https://choosealicense.com/licenses/mit/))
+    * Initialized from [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) (License: [MIT License](https://choosealicense.com/licenses/mit/))
+
+
 ### Feature Map Down Sampling Method: [Mean Pooling](https://paperswithcode.com/method/average-pooling)
 
 * Reduce computationally expensive -> Fast chatbot (Speed)
@@ -37,6 +43,10 @@ Expected output:
 ```
 cos_sim = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 ```
+
+### Interactive UI
+
+Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/gradio)  (License: [Apache-2.0 License](https://choosealicense.com/licenses/apache-2.0/)).
 
 ## Example and Explanation
 
