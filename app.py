@@ -1,7 +1,8 @@
 # !wget -nc https://raw.githubusercontent.com/baobuiquang/datasets/main/sample.xlsx >& /dev/null
 # !pip install gradio==4.21.0 >& /dev/null
 
-
+# ==============================
+# ========== PACKAGES ==========
 import gradio as gr # gradio==4.21.0
 import pandas as pd
 import numpy as np
@@ -11,27 +12,29 @@ from transformers import AutoTokenizer, AutoModel
 from datetime import datetime
 # pd.options.mode.chained_assignment = None  # default='warn'
 
-
+# ===========================
+# ========== FILES ==========
 FILE_NAME = "data/sample.xlsx"
 df_map = pd.read_excel(FILE_NAME, header=None, sheet_name=None)
 df_map_sheet_names = pd.ExcelFile(FILE_NAME).sheet_names
 
-
+# ============================
+# ========== MODELS ==========
 MODEL_NAME = "baobuiquang/XLM-ROBERTA-ME5-BASE"
-# MODEL_NAME = "intfloat/multilingual-e5-base"                                  # 10/10
-# MODEL_NAME = "keepitreal/vietnamese-sbert"                                    # 9/10
-# MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"                         # 9/10
-# MODEL_NAME = "BAAI/bge-m3"                                                    # 9/10
-
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModel.from_pretrained(MODEL_NAME)
 
+# ===============================
+# ========== FUNCTIONS ==========
 
-# Mean Pooling - Take attention mask into account for correct averaging
-def mean_pooling(model_output, attention_mask):
-    token_embeddings = model_output[0] #First element of model_output contains all token embeddings
-    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+# Text -> Embedding
+def text_to_embedding(text):
+    lower_text = text.lower() # Lowercasing
+    encoded_input = tokenizer(lower_text, padding=True, truncation=True, return_tensors='pt')
+    with torch.no_grad():
+        model_output = model(**encoded_input)
+    embedding = mean_pooling(model_output, encoded_input['attention_mask'])
+    return embedding[0]
 
 # List of Texts -> List of Embeddings
 def texts_to_embeddings(list_of_texts):
@@ -42,14 +45,12 @@ def texts_to_embeddings(list_of_texts):
     list_of_embeddings = mean_pooling(model_output, encoded_input['attention_mask'])
     return list_of_embeddings
 
-# Text -> Embedding
-def text_to_embedding(text):
-    lower_text = text.lower() # Lowercasing
-    encoded_input = tokenizer(lower_text, padding=True, truncation=True, return_tensors='pt')
-    with torch.no_grad():
-        model_output = model(**encoded_input)
-    embedding = mean_pooling(model_output, encoded_input['attention_mask'])
-    return embedding[0]
+# Mean Pooling
+# - Take attention mask into account for correct averaging
+def mean_pooling(model_output, attention_mask):
+    token_embeddings = model_output[0] # First element of model_output contains all token embeddings
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    return torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
 
 # Cosine Similarity between 2 embeddings
 def cosine_similarity(a, b):
@@ -68,9 +69,10 @@ def similarity(my_embedding, list_of_embeddings):
             max_sim_index = i
     return {"max_index": max_sim_index, "max": max_sim, "list": list_of_sim}
 
+# ===================================
+# ========== PREPROCESSING ==========
 
-
-# preprocessed_df_map ==========================================================
+# preprocessed_df_map ----------------------------------------------------------
 # - A list of dataframes (preprocessed), each dataframe contains data from 1 sheet from the XLSX file
 
 preprocessed_df_map = []
@@ -117,7 +119,10 @@ for sheet_name in df_map_sheet_names:
     # Return the preprocessed sheet
     preprocessed_df_map.append(df)
 
-# embeddings_map ===============================================================
+# ========================================
+# ========== FEATURE EXTRACTION ==========
+
+# embeddings_map ---------------------------------------------------------------
 # - A list of pre-calculated embeddings (vectors) of x/y axis in the corresponding dataframe in the `preprocessed_df_map`
 
 x_list_embeddings_map = []
@@ -139,8 +144,8 @@ for i in range(len(preprocessed_df_map)):
     x_list_embeddings_map.append(x_list_embeddings)
     y_list_embeddings_map.append(y_list_embeddings)
 
-# ==============================================================================
-
+# ==========================
+# ========== MAIN ==========
 
 def chatbot_mechanism(message, history, additional_input_1):
     # Clarify namings
@@ -225,11 +230,11 @@ with gr.Blocks(
                 label = 'Câu hỏi ví dụ (Dữ liệu "Tư pháp")',
                 examples_per_page = 100,
                 examples = [
-                    "Tổng số hồ sơ chứng thực bản sao từ bản chính tới ngày 10/1/2024 là bao nhiêu?", # 100
+                    "Tổng số hồ sơ chứng thực bản sao từ bản chính tới ngày 10/1/2024 là bao nhiêu?",     # 100
                     "15 tháng 1 năm 2024, hãy tìm dữ liệu tổng số hồ sơ chứng thực hợp đồng, giao dịch.", # 219
-                    "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?", # 165
-                    "Có bao nhiêu HS chứng thực việc sửa đổi, bổ sung, hủy bỏ ngày 14/01/2024?", # 194
-                    "Tính đến ngày 11 tháng 1, 2024, số hồ sơ đăng ký kết hôn là bao nhiêu?", # 177
+                    "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?",         # 165
+                    "Có bao nhiêu HS chứng thực việc sửa đổi, bổ sung, hủy bỏ ngày 14/01/2024?",          # 194
+                    "Tính đến ngày 11 tháng 1, 2024, số hồ sơ đăng ký kết hôn là bao nhiêu?",             # 177
                 ],
                 inputs = [textbox_input],
             )
@@ -243,10 +248,10 @@ with gr.Blocks(
                 examples_per_page = 100,
                 examples = [
                     "Số vụ phạm tội công nghệ cao ngày 19 tháng 3 năm 2024 là bao nhiêu?", # 121
-                    "Tới ngày 20/3/2024, có mấy vụ án đặc biệt nghiêm trọng?", # 208
-                    "Ngày 22 tháng 3 năm 2024, có bao nhiêu người chết do TNGT", # 273
-                    "Có bao nhiêu vụ cháy cho đến ngày 24/03/2024?", # 437
-                    "Tìm thông tin số vụ tai nạn giao thông tại ngày 18/3 năm 2024.", # 104
+                    "Tới ngày 20/3/2024, có mấy vụ án đặc biệt nghiêm trọng?",             # 208
+                    "Ngày 22 tháng 3 năm 2024, có bao nhiêu người chết do TNGT",           # 273
+                    "Có bao nhiêu vụ cháy cho đến ngày 24/03/2024?",                       # 437
+                    "Tìm thông tin số vụ tai nạn giao thông tại ngày 18/3 năm 2024.",      # 104
                 ],
                 inputs = [textbox_input],
             )
