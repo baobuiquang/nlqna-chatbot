@@ -116,7 +116,7 @@ https://github.com/baobuiquang/nlqna-chatbot/assets/60503568/57621579-6a58-4638-
 ### Installation
 
 Prerequisites:
-* [Python 3](https://www.python.org/downloads/)
+* [Python 3.11.x](https://www.python.org/downloads/release/python-3117/)
 * [Git](https://git-scm.com/downloads)
 
 Clone [this repository](https://github.com/baobuiquang/nlqna-chatbot):
