@@ -50,6 +50,8 @@ Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/
 
 ## Example and Rough Explanation
 
+Sample data: [sample.xlsx](https://github.com/baobuiquang/nlqna-chatbot/blob/main/data/sample.xlsx)
+
 ### Step 1. Input:
 * `question` = "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?"
 * `data` = `data/sample.xlsx`
@@ -117,7 +119,7 @@ Prerequisites:
 * [Python 3](https://www.python.org/downloads/)
 * [Git](https://git-scm.com/downloads)
 
-Clone this repository:
+Clone [this repository](https://github.com/baobuiquang/nlqna-chatbot):
 ```
 git clone https://github.com/baobuiquang/nlqna-chatbot.git
 cd nlqna-chatbot
@@ -138,7 +140,7 @@ Upgrade `pip` command:
 python.exe -m pip install --upgrade pip
 ```
 
-Install required packages/libraries:
+Install [required packages/libraries](https://github.com/baobuiquang/nlqna-chatbot/blob/main/requirements.txt):
 ```
 pip install -r requirements.txt
 ```
