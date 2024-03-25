@@ -48,9 +48,9 @@ cos_sim = np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/gradio)  (License: [Apache-2.0 License](https://choosealicense.com/licenses/apache-2.0/)).
 
-## Example and Explanation
+## Example and Rough Explanation
 
-### 1. Input:
+### Step 1. Input:
 * `question` = "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?"
 * `data` = `data/sample.xlsx`
 
@@ -63,7 +63,7 @@ Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/
 | **Tổng số HS chứng thực việc sửa đổi, bổ sung, hủy bỏ** |       |      162       |      169       |      187       |       |
 |                           ...                           |       |                |                |                |       |
 
-### 2. Feature Extraction
+### Step 2. Feature Extraction:
 
 * `question` -> `question_embedding` (`PyTorch Tensor`)
 * `data` -> `data_embeddings` (Map of `PyTorch Tensors`)
@@ -77,7 +77,7 @@ Chatbot's Web UI is currently built with [gradio](https://github.com/gradio-app/
 | ***\<PT Tensor\>*** |       |         162         |         169         |         187         |       |
 |         ...         |       |                     |                     |                     |       |
 
-### 3. Measurement Calculation
+### Step 3. Measurement Calculation:
 
 Calculate the Cosine Similarity between `question_embedding` and `data_embeddings`.
 
@@ -90,7 +90,7 @@ Calculate the Cosine Similarity between `question_embedding` and `data_embedding
 | ***{cos_sim}*** |       |       162       |       169       |       187       |       |
 |       ...       |       |                 |                 |                 |       |
 
-### 4. Output
+### Step 4. Output:
 
 Find the highest Cosine Similarity in horizontal and vertical axis to determine the cell for final answer.
 
@@ -107,8 +107,8 @@ Output the answer (cell value): "165"
 
 ## Installation
 
-TODO
+📝 TODO 
 
 ## Deployment
 
-TODO
+📝 TODO 
