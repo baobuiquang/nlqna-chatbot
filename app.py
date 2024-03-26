@@ -2,6 +2,10 @@
 # !pip install gradio==4.21.0 >& /dev/null
 
 # ==============================
+# ========== HARDCODE ==========
+X_LIST_NAME = "Tên chỉ số"
+
+# ==============================
 # ========== PACKAGES ==========
 import gradio as gr # gradio==4.21.0
 import pandas as pd
@@ -88,11 +92,7 @@ for sheet_name in df_map_sheet_names:
     for e in df.loc[header_position]:
         if isinstance(e, datetime):
             new_header.append(
-                f"\
-                ngày {e.strftime('%d').lstrip('0')} tháng {e.strftime('%m').lstrip('0')} năm {e.strftime('%Y')} \
-                {e.strftime('%d').lstrip('0')}/{e.strftime('%m').lstrip('0')}/{e.strftime('%Y')} \
-                {e.strftime('%d')}/{e.strftime('%m')}/{e.strftime('%Y')} \
-                "
+                f"ngày {e.strftime('%d').lstrip('0')} tháng {e.strftime('%m').lstrip('0')} năm {e.strftime('%Y')} {e.strftime('%d').lstrip('0')}/{e.strftime('%m').lstrip('0')}/{e.strftime('%Y')} {e.strftime('%d')}/{e.strftime('%m')}/{e.strftime('%Y')}"
             )
         else:
             new_header.append(e)
@@ -133,7 +133,7 @@ for i in range(len(preprocessed_df_map)):
     df = preprocessed_df_map[i]
 
     # HARDCODE
-    x_list = list(df['Tên chỉ số'])
+    x_list = list(df[X_LIST_NAME])
     y_list = list(df.columns)
 
     # Only need to calculate once
@@ -163,13 +163,51 @@ def chatbot_mechanism(message, history, additional_input_1):
     y_index = y_sim['max_index']
     x_score = x_sim['max']
     y_score = y_sim['max']
+    x_text = str(df.loc[x_index, 'Tên chỉ số'])
+    y_text = str(df.columns[y_index])
+
+    # Small adjustment for better print
+    if y_text.count('/') == 4:
+        y_text = y_text[-10:] # If y_text is preprocessed datetime format, trim it
+
     # Just add some text to warn users
     eval_text = ""
+    eval_text_sub_title = ""
     if x_score < 0.85 or y_score < 0.85:
-        eval_text = "\n⚠️ Low Cosine Similarity ⚠️"
+        eval_text_sub_title = "Cảnh báo:"
+        eval_text = "⚠️ Đặc trưng trích xuất không rõ ràng ⚠️"
+
+    # Score display
+    x_score_display = str(round((x_score - 0.8) / (1.0 - 0.8) * 100, 1))
+    y_score_display = str(round((y_score - 0.8) / (1.0 - 0.8) * 100, 1))
+
     # Cell value
     cell_value = df.iloc[x_index, y_index]
-    final_output_message = f"**{cell_value}**\n<div style='color: gray; font-size: 80%; font-family: courier, monospace;'>[x={str(round(x_score,2))}, y={str(round(y_score,2))}]{eval_text}</div>"
+    
+    # Final print
+    final_output_message = f"\
+        <div style='color: gray; font-size: 80%; font-family: courier, monospace;'>\
+            Kết quả:\
+        </div>\
+        <div style='font-weight: bold;'>\
+            {cell_value}\
+        </div>\
+        <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+            Đặc trưng trích xuất được:\
+        </div>\
+        • {x_text}<br>\
+        • {y_text}<br>\
+        <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+            Đánh giá:\
+        </div>\
+        Độ tương quan: [x={x_score_display}%, y={y_score_display}%]<br>\
+        <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+            {eval_text_sub_title}\
+        </div>\
+        <div style='color: red; font-weight: bold;'>\
+            {eval_text}\
+        </div>\
+    "
     return final_output_message
     # for i in range(len(final_output_message)):
     #     time.sleep(0.1)
