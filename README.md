@@ -25,8 +25,7 @@ Expected output:
 
 #### Model:
 * Stable Model: [HF/XLM-ROBERTA-ME5-BASE](https://huggingface.co/baobuiquang/XLM-ROBERTA-ME5-BASE) (License: [MIT License](https://choosealicense.com/licenses/mit/))
-  * Forked from: [HF/multilingual-e5-base](https://huggingface.co/intfloat/multilingual-e5-base) (License: [MIT License](https://choosealicense.com/licenses/mit/))
-    * Initialized from [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) (License: [MIT License](https://choosealicense.com/licenses/mit/))
+  * Initialized from [xlm-roberta-base](https://huggingface.co/xlm-roberta-base) (License: [MIT License](https://choosealicense.com/licenses/mit/))
 
 
 ### Feature Map Down Sampling Method: [Mean Pooling](https://paperswithcode.com/method/average-pooling)
