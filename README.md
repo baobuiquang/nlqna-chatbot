@@ -102,10 +102,10 @@ Find the highest Cosine Similarity in horizontal and vertical axis to determine 
 
 |                                |       |             |                                |             |       |
 | :----------------------------: | :---: | :---------: | :----------------------------: | :---------: | :---: |
-|                                |  ...  | *{cos_sim}* | ***{highest_cos_sim_x_axis}*** | *{cos_sim}* |  ...  |
+|                                |  ...  | *{cos_sim}* | ***{best_cos_sim_x_axis}*** | *{cos_sim}* |  ...  |
 |              ...               |       |             |                                |             |       |
 |          *{cos_sim}*           |       |     156     |              161               |     177     |       |
-| ***{highest_cos_sim_y_axis}*** |       |     159     |           ***165***            |     182     |       |
+| ***{best_cos_sim_y_axis}*** |       |     159     |           ***165***            |     182     |       |
 |          *{cos_sim}*           |       |     162     |              169               |     187     |       |
 |              ...               |       |             |                                |             |       |
 
