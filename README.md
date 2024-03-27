@@ -6,6 +6,11 @@ Input:
 * `data` - Example: `data/sample.xlsx`
 * `question` - Example: "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?"
 
+Expected extracted features:
+* `features` - Example:
+  *  "Tổng số HS chứng thực chữ ký"
+  *  "12/01/2024"
+
 Expected output:
 * `answer`: Example: "165"
 
