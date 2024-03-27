@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import torch
 import time
+import re
 from transformers import AutoTokenizer, AutoModel
 from datetime import datetime, timedelta
 from dateparser.search import search_dates
@@ -236,7 +237,8 @@ def chatbot_mechanism(message, history, additional_input_1):
     y_text = str(df.columns[y_index])
 
     # Not related but extract datetime in the question if any
-    extracted_date = search_dates(question)[0][1].strftime('%d/%m/%Y')
+    extracted_date = search_dates(message)[0][1].strftime('%d/%m/%Y')
+    print_extracted_date = bool(re.search(r'\d', message))
 
     # Small adjustment for better print
     if y_text.count('/') == 4:
@@ -244,16 +246,24 @@ def chatbot_mechanism(message, history, additional_input_1):
 
     # Just add some text to warn users
     eval_text_1 = ""
+    eval_text_color = ""
     eval_text_2 = ""
     eval_text_sub_title = ""
+    if x_score <= 0.875 or y_score <= 0.875:
+        eval_text_sub_title = "Cảnh báo:"
+        eval_text_1 = "Độ tương quan thấp"
+        eval_text_2 = "opacity: 0.9;"
+        eval_text_color = "orange"
     if x_score <= 0.865 or y_score <= 0.865:
         eval_text_sub_title = "Cảnh báo:"
-        eval_text_1 = "⚠️ Độ tương quan thấp ⚠️"
-        eval_text_2 = "opacity: 0.5;"
+        eval_text_1 = "⚠️ Độ tương quan rất thấp ⚠️"
+        eval_text_2 = "opacity: 0.8;"
+        eval_text_color = "red"
+
 
     # Score display
-    x_score_display = str(round((x_score - 0.8) / (1.0 - 0.8) * 100, 1))
-    y_score_display = str(round((y_score - 0.8) / (1.0 - 0.8) * 100, 1))
+    x_score_display = str(round((x_score - 0.85) / (1.0 - 0.85) * 100, 1))
+    y_score_display = str(round((y_score - 0.85) / (1.0 - 0.85) * 100, 1))
 
     # Cell value
     cell_value = df.iloc[x_index, y_index]
@@ -262,14 +272,14 @@ def chatbot_mechanism(message, history, additional_input_1):
     final_output_message = f"\
         <div style='{eval_text_2}'>\
             <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
-                Đặc trưng trích xuất được (có embedding trong dữ liệu):\
+                Đặc trưng trích xuất được (embedding):\
             </div>\
             • {x_text}<br>\
             • {y_text if extra_information_for_special_cases_flag == False else extra_information_for_special_cases}<br>\
             <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
                 Đặc trưng trích xuất được (nội suy):\
             </div>\
-            • {extracted_date}<br>\
+            • {extracted_date if print_extracted_date == True else ''}<br>\
             <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
                 Đánh giá:\
             </div>\
@@ -278,7 +288,7 @@ def chatbot_mechanism(message, history, additional_input_1):
         <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
             {eval_text_sub_title}\
         </div>\
-        <div style='color: red; font-weight: bold;'>\
+        <div style='color: {eval_text_color}; font-weight: bold;'>\
             {eval_text_1}\
         </div>\
     "
