@@ -113,6 +113,8 @@ Output the answer (cell value): "165"
 
 ## Demo
 
+[Demo hosted on HuggingFace](https://huggingface.co/spaces/baobuiquang/nlqna-chatbot) (2vCPU - 16GB RAM - 0GB VRAM)
+
 https://github.com/baobuiquang/nlqna-chatbot/assets/60503568/57621579-6a58-4638-9644-b4e482ac975e
 
 ## Instructions (Recommended workflow)
