@@ -13,7 +13,8 @@ import numpy as np
 import torch
 import time
 from transformers import AutoTokenizer, AutoModel
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateparser.search import search_dates
 # pd.options.mode.chained_assignment = None  # default='warn'
 
 # ===========================
@@ -148,13 +149,81 @@ for i in range(len(preprocessed_df_map)):
 # ========== MAIN ==========
 
 def chatbot_mechanism(message, history, additional_input_1):
+
     # Clarify namings
     question = message
     sheet_id = additional_input_1
+
+    # Small preprocess the message to handle unclear cases (ex: "tháng này")
+    extra_information_for_special_cases = ""
+    extra_information_for_special_cases_flag = False
+    unclear_cases = [
+        # Case 0: -> DAY, MONTH, YEAR
+        [
+            "ngày này" , "ngày hiện tại", "ngày hôm nay", "hôm nay", "hôm này", "ngày nay", "ngày hiện nay",
+            "bây giờ", "hiện giờ", "hiện nay", "hiện tại", "thời điểm này", "thời gian này", "lúc này", "khi này",
+        ],
+        # Case 1: -> MONTH, YEAR
+        ["tháng này", "tháng hiện tại", "tháng nay", "tháng bây giờ", "tháng đang diễn ra", "tháng hiện nay", "tháng hiện giờ"], 
+        # Case 2: -> YEAR
+        ["năm này", "năm hiện tại", "năm nay", "năm hiện nay"],
+
+        # Case 3: -> DAY, MONTH, YEAR
+        ["hôm qua", "hôm trước", "ngày qua", "ngày trước"],
+        # Case 4: -> MONTH, YEAR
+        ["tháng trước", "tháng qua", "tháng vừa rồi", "tháng đã qua"], 
+        # Case 5: -> YEAR
+        ["năm trước", "năm ngoái", "năm qua", "năm vừa rồi", "năm đã qua"],
+
+        # Case 6: -> DAY, MONTH, YEAR
+        ["ngày mai", "ngày sau", "ngày tới", "ngày tiếp theo", "ngày hôm sau", "ngày kế tiếp", "ngày sắp tới"],
+        # Case 7: -> MONTH, YEAR
+        ["tháng sau", "tháng tới", "tháng tiếp theo", "tháng kế tiếp", "tháng sắp tới"], 
+        # Case 8: -> YEAR
+        ["năm sau", "năm tới", "năm tiếp theo", "năm kế tiếp", "năm sắp tới"],
+    ]
+    for i in range(len(unclear_cases)):
+        for u in range(len(unclear_cases[i])):
+            if unclear_cases[i][u] in question:
+                # Flag
+                extra_information_for_special_cases_flag = True
+                # Get the current time data
+                current_time = datetime.now()
+                target_time = datetime.now() # Just pre-define
+                # Handle specific cases
+                if i in [0, 1, 2]:
+                    target_time = current_time # No change
+                elif i == 3:
+                    target_time = current_time - timedelta(days = 1)
+                elif i == 4:
+                    target_time = current_time - timedelta(days = 30)
+                elif i == 5:
+                    target_time = current_time - timedelta(days = 365)
+                elif i == 6:
+                    target_time = current_time + timedelta(days = 1)
+                elif i == 7:
+                    target_time = current_time + timedelta(days = 30)
+                elif i == 8:
+                    target_time = current_time + timedelta(days = 365)
+                # Extract time to day, month, year
+                day = str(target_time.strftime('%d').lstrip(''))
+                month = str(target_time.strftime('%m').lstrip(''))
+                year = str(target_time.strftime('%Y').lstrip(''))
+                # Handle specific cases
+                if i in [0, 3, 6]:
+                    extra_information_for_special_cases = f"Ngày {day} tháng {month} năm {year}"
+                elif i in [1, 4, 7]:
+                    extra_information_for_special_cases = f"Tháng {month} năm {year}"
+                elif i in [2, 5, 8]:
+                    extra_information_for_special_cases = f"Năm {year}"
+    if extra_information_for_special_cases_flag == True:
+        question = extra_information_for_special_cases + " " + question
+
     # Select the right data
     df = preprocessed_df_map[sheet_id]
     x_list_embeddings = x_list_embeddings_map[sheet_id]
     y_list_embeddings = y_list_embeddings_map[sheet_id]
+
     # Find the position of the needed cell
     question_embedding = text_to_embedding(question)
     x_sim = similarity(question_embedding, x_list_embeddings)
@@ -166,16 +235,21 @@ def chatbot_mechanism(message, history, additional_input_1):
     x_text = str(df.loc[x_index, 'Tên chỉ số'])
     y_text = str(df.columns[y_index])
 
+    # Not related but extract datetime in the question if any
+    extracted_date = search_dates(question)[0][1].strftime('%d/%m/%Y')
+
     # Small adjustment for better print
     if y_text.count('/') == 4:
         y_text = y_text[-10:] # If y_text is preprocessed datetime format, trim it
 
     # Just add some text to warn users
-    eval_text = ""
+    eval_text_1 = ""
+    eval_text_2 = ""
     eval_text_sub_title = ""
-    if x_score < 0.85 or y_score < 0.85:
+    if x_score <= 0.865 or y_score <= 0.865:
         eval_text_sub_title = "Cảnh báo:"
-        eval_text = "⚠️ Đặc trưng trích xuất không rõ ràng ⚠️"
+        eval_text_1 = "⚠️ Độ tương quan thấp ⚠️"
+        eval_text_2 = "opacity: 0.5;"
 
     # Score display
     x_score_display = str(round((x_score - 0.8) / (1.0 - 0.8) * 100, 1))
@@ -186,28 +260,34 @@ def chatbot_mechanism(message, history, additional_input_1):
     
     # Final print
     final_output_message = f"\
-        <div style='color: gray; font-size: 80%; font-family: courier, monospace;'>\
-            Kết quả:\
+        <div style='{eval_text_2}'>\
+            <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+                Đặc trưng trích xuất được (có embedding trong dữ liệu):\
+            </div>\
+            • {x_text}<br>\
+            • {y_text if extra_information_for_special_cases_flag == False else extra_information_for_special_cases}<br>\
+            <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+                Đặc trưng trích xuất được (nội suy):\
+            </div>\
+            • {extracted_date}<br>\
+            <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+                Đánh giá:\
+            </div>\
+            Độ tương quan: [x={x_score_display}%, y={y_score_display}%]<br>\
         </div>\
-        <div style='font-weight: bold;'>\
-            {cell_value}\
-        </div>\
-        <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
-            Đặc trưng trích xuất được:\
-        </div>\
-        • {x_text}<br>\
-        • {y_text}<br>\
-        <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
-            Đánh giá:\
-        </div>\
-        Độ tương quan: [x={x_score_display}%, y={y_score_display}%]<br>\
         <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
             {eval_text_sub_title}\
         </div>\
         <div style='color: red; font-weight: bold;'>\
-            {eval_text}\
+            {eval_text_1}\
         </div>\
     "
+        # <div style='color: gray; font-size: 80%; font-family: courier, monospace; margin-top: 6px;'>\
+        #     Kết quả:\
+        # </div>\
+        # <div style='font-weight: bold;'>\
+        #     {cell_value}\
+        # </div>\
     return final_output_message
     # for i in range(len(final_output_message)):
     #     time.sleep(0.1)
