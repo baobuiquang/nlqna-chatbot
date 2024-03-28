@@ -237,7 +237,7 @@ def chatbot_mechanism(message, history, additional_input_1):
     y_text = str(df.columns[y_index])
 
     # Not related but extract datetime in the question if any
-    extracted_date = search_dates(message)[0][1].strftime('%d/%m/%Y')
+    extracted_date = search_dates(message)[0][1].strftime('%d/%m/%Y') if search_dates(message) != None else ' '
     print_extracted_date = bool(re.search(r'\d', message))
 
     # Small adjustment for better print
