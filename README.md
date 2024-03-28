@@ -6,6 +6,11 @@ Input:
 * `data` - Example: `data/sample.xlsx`
 * `question` - Example: "Tổng số hồ sơ chứng thực chữ ký vào ngày 12 tháng 1 năm 2024 là bao nhiêu?"
 
+Expected extracted features:
+* `features` - Example:
+  *  "Tổng số HS chứng thực chữ ký"
+  *  "12/01/2024"
+
 Expected output:
 * `answer`: Example: "165"
 
@@ -97,16 +102,18 @@ Find the highest Cosine Similarity in horizontal and vertical axis to determine 
 
 |                                |       |             |                                |             |       |
 | :----------------------------: | :---: | :---------: | :----------------------------: | :---------: | :---: |
-|                                |  ...  | *{cos_sim}* | ***{highest_cos_sim_x_axis}*** | *{cos_sim}* |  ...  |
+|                                |  ...  | *{cos_sim}* | ***{best_cos_sim_x_axis}*** | *{cos_sim}* |  ...  |
 |              ...               |       |             |                                |             |       |
 |          *{cos_sim}*           |       |     156     |              161               |     177     |       |
-| ***{highest_cos_sim_y_axis}*** |       |     159     |           ***165***            |     182     |       |
+| ***{best_cos_sim_y_axis}*** |       |     159     |           ***165***            |     182     |       |
 |          *{cos_sim}*           |       |     162     |              169               |     187     |       |
 |              ...               |       |             |                                |             |       |
 
 Output the answer (cell value): "165"
 
 ## Demo
+
+[Demo hosted on HuggingFace](https://huggingface.co/spaces/baobuiquang/nlqna-chatbot) (2vCPU - 16GB RAM - 0GB VRAM)
 
 https://github.com/baobuiquang/nlqna-chatbot/assets/60503568/57621579-6a58-4638-9644-b4e482ac975e
 
